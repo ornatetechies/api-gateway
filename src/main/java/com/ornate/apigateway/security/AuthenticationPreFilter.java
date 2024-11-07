@@ -54,12 +54,17 @@ public class AuthenticationPreFilter extends AbstractGatewayFilterFactory<Authen
     private List<String> excludedUrls;
 
 
+    public AuthenticationPreFilter() {
+        super(Config.class);
+    }
     public static class Config{
         private List<String> excludedPatterns;
 
         public List<String> getExcludedPatterns() {
             return excludedPatterns;
         }
+
+
 
         public void setExcludedPatterns(List<String> excludedPatterns) {
             this.excludedPatterns = excludedPatterns;
@@ -68,7 +73,10 @@ public class AuthenticationPreFilter extends AbstractGatewayFilterFactory<Authen
 
     private PublicKey getPublicKey() throws KeyStoreException, FileNotFoundException {
         KeyStore keyStore = KeyStore.getInstance("JKS");
-        try (InputStream inputStream = new FileInputStream(keyStorePath)) {
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(keyStorePath)) {
+            if (inputStream == null) {
+                throw new FileNotFoundException("KeyStore file not found: " + keyStorePath);
+            }
             keyStore.load(inputStream, keyStorePassword.toCharArray());
         } catch (CertificateException e) {
             throw new RuntimeException(e);
