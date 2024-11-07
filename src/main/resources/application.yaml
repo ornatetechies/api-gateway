@@ -8,11 +8,18 @@ spring:
           uri: lb://AUTHORIZATION-AUTHENTICATION
           predicates:
             - Path=/api/user/**
+        - id: expense-server
+          uri: lb://INCOMEEXPENSE
+          predicates:
+            - Path=/api/transactions/**
+          filters:
+            - AuthenticationPreFilter
       globalcors:
         cors-configurations:
           '[/**]':
             allowedOrigins:
               - "http://localhost:8080"
+              - "http://localhost:8081"
             allowedMethods:
               - GET
               - POST
@@ -31,7 +38,7 @@ eureka:
     service-url:
       defaultZone: http://eureka-server:8761/eureka
   instance:
-    hostname: Authorization-Server
+    preferIpAddress: true
 
 gateway:
   excludedUrl: /api/user, /login
